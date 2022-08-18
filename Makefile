@@ -4,11 +4,12 @@ LIB_F = libft
 CC = gcc
 CFLAGS = -Wall -Werror -Wextra
 TFLAG = -lpthread
+SRCS = philosophers.c utils.c
 
 all: $(NAME)
 
-$(NAME): $(LIBFT)
-	$(CC) $(CFLAGS) $(TFLAG) $(LIBFT) *.c -o $(NAME)
+$(NAME): $(LIBFT) $(SRCS)
+	$(CC) $(CFLAGS) $(TFLAG) $(LIBFT) $(SRCS) -o $(NAME)
 
 $(LIBFT): $(LIB_F)
 	make -C $(LIB_F)

@@ -15,7 +15,7 @@
 # include <string.h>
 # include <pthread.h>
 /*
-	pthread_create
+	pthread_create  //2046 ya kadar
 	pthread_detach
 	pthread_join
 */
@@ -25,22 +25,28 @@
 
 # include "libft/libft.h"
 
+typedef struct s_main t_main;
+
 typedef struct s_philo{
-	char			**color;
 	pthread_t		td;
-	pthread_mutex_t	mutex;
+	t_main			*main;
+	char			*color;
 	int				id;
 	int				state;
 }	t_philo;
 
 typedef struct s_main{
-	int		cnt;
-	int		die;
-	int		eat;
-	int		slp;
-	t_philo	*philo;
+	int				
+	int				cnt;
+	int				die;
+	int				eat;
+	int				slp;
+	char			**msgs;
+	char			**color;
+	t_philo			*philo;
+	pthread_mutex_t	*forks;
 }	t_main;
 
-char	**color;
+t_main c_strs_put(void);
 
 #endif

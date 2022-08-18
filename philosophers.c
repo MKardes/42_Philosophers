@@ -6,15 +6,35 @@
 /*   By: mkardes <mkardes@student.42kocaeli.com.tr  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/17 11:55:20 by mkardes           #+#    #+#             */
-/*   Updated: 2022/08/19 00:20:40 by mkardes          ###   ########.fr       */
+/*   Updated: 2022/08/19 01:28:04 by mkardes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-//void	print(t_philo *philo)
+void	print(t_philo *philo, char *msg)
+{
+	printf("%s""Time: ""%d.Philosoph 🗿 %s\n", philo->color, philo->id, msg);
+}
 
-//void	get_fork()
+void	get_fork(t_philo *philo, char a)
+{
+	if (a == 2)
+	{
+		philo->state[0] = 1;
+		print(philo, philo->main->msgs[0]);
+	}
+	if (philo->state[0])
+	{
+		philo->state[1] = 1;
+		print(philo, philo->main->msgs[0]);
+	}
+	else
+	{
+		philo->state[0] = 1;
+		print(philo, philo->main->msgs[0]);
+	}
+}
 
 void    *loop1(void *philos)
 {
@@ -22,12 +42,11 @@ void    *loop1(void *philos)
     t_philo	*philo;
 
 	philo = (t_philo *)philos;
+	if (philo->id % 2)
+		get_fork(philo, 2);
 	i= 0;
 	while(1)
 	{
-		//if (philo->id % 2)
-		//	get_fork(philo, 2);
-		printf("%s""Time: ""%d.Philosoph 🗿 %s  %d\n", philo->color, philo->id, philo->main->msgs[philo->id % 5], philo[0].main->philo[0].main->philo[0].main->philo[1].main->philo[4].id);
 	}
 	return (0);
 }
@@ -46,10 +65,9 @@ void	thread_maker(char **av, t_main *main)
 	main->philo = (t_philo *)malloc(sizeof(t_philo) * main->cnt);
 	while (i< main->cnt)
 	{
-		main->philo[i].state = 0;
+		main->philo[i].state = malloc(5);
 		main->philo[i].color = main->color[i % 8];
 		main->philo[i].id = i;
-		main->philo[i].state = i % 4;
 		pthread_create(&(main->philo[i].td), NULL, loop1, &main->philo[i]);
 		pthread_mutex_init(&main->forks[i], NULL);
 		main->philo[i].main = main;

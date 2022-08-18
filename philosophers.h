@@ -32,11 +32,10 @@ typedef struct s_philo{
 	t_main			*main;
 	char			*color;
 	int				id;
-	int				state;
+	char			*state;
 }	t_philo;
 
 typedef struct s_main{
-	int				
 	int				cnt;
 	int				die;
 	int				eat;

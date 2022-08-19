@@ -1,14 +1,11 @@
 #ifndef PHILOSOPHERS_H
 # define PHILOSOPHERS_H
 
-# define GRAY "\033[0;90m"
-# define RED "\033[0;90m"
-# define GREEN "\033[0;90m"
-# define YELLOW "\033[0;90m"
-# define BLUE "\033[0;90m"
-# define MAGENTA "\033[0;90m"
-# define CYAN "\033[0;90m"
-# define WHITE "\033[0;90m"
+# define FORK philo->main->msgs[0]
+# define EAT philo->main->msgs[1]
+# define SLP philo->main->msgs[2]
+# define THNK philo->main->msgs[3]
+# define DIE philo->main->msgs[4]
 
 # include <stdio.h>
 # include <stdlib.h>
@@ -18,6 +15,8 @@
 	pthread_create  //2046 ya kadar
 	pthread_detach
 	pthread_join
+
+	pthread_mutex_lock(&mutex);
 */
 
 # include <sys/time.h>
@@ -31,8 +30,9 @@ typedef struct s_philo{
 	pthread_t		td;
 	t_main			*main;
 	char			*color;
-	int				id;
 	char			*state;
+	long			time;
+	int				id;
 }	t_philo;
 
 typedef struct s_main{
@@ -42,10 +42,13 @@ typedef struct s_main{
 	int				slp;
 	char			**msgs;
 	char			**color;
+	long			start_t;
 	t_philo			*philo;
 	pthread_mutex_t	*forks;
 }	t_main;
 
-t_main c_strs_put(void);
+t_main	c_strs_put(void);
+void	print(long time, t_philo *philo, char *msg);
+long	get_time(long time);
 
 #endif

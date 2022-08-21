@@ -8,6 +8,51 @@ SRCS = philosophers.c utils.c
 
 all: $(NAME)
 
+run: all
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+	@echo "\n\n\n"
+	./philo 5 3 2 5
+
 $(NAME): $(LIBFT) $(SRCS)
 	$(CC) $(CFLAGS) $(TFLAG) $(LIBFT) $(SRCS) -o $(NAME)
 

@@ -33,9 +33,13 @@ typedef struct s_philo{
 	char			*state;
 	long			time;
 	int				id;
+	int				e_cnt;
 }	t_philo;
 
 typedef struct s_main{
+	int				a_5;
+	int				trgt;
+	int				reach;
 	int				a;
 	int				d_chc;
 	int				cnt;
@@ -47,12 +51,19 @@ typedef struct s_main{
 	long			start_t;
 	t_philo			*philo;
 	pthread_mutex_t	*forks;
+pthread_mutex_t	reach_m;
 	pthread_mutex_t	p_mutex;
 }	t_main;
 
-t_main	c_strs_put(void);
-int		print(long time, t_philo *philo, char *msg);
+void	c_strs_put(t_main *main);
+void	fork_init(t_philo *philo);
+void	*exit_mutex(t_philo *philo);
+void	*loop(void *philos);
 long	get_time(long time);
+int		get_eat(t_philo *philo);
+int		print(long time, t_philo *philo, char *msg);
 int		main(int ac, char **av);
+int		lock_fork(t_philo *philo);
+
 
 #endif

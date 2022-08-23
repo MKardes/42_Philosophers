@@ -4,7 +4,7 @@ LIB_F = libft
 CC = gcc
 CFLAGS = -Wall -Werror -Wextra
 TFLAG = -lpthread
-SRCS = philosophers.c utils.c
+SRCS = philosophers.c utils.c loop.c
 
 all: $(NAME)
 

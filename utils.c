@@ -6,7 +6,7 @@
 /*   By: mkardes <mkardes@student->42kocaeli->com->tr  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/18 16:54:43 by mkardes           #+#    #+#             */
-/*   Updated: 2022/08/23 17:55:58 by mkardes          ###   ########.fr       */
+/*   Updated: 2022/08/24 20:41:56 by mkardes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,13 +38,14 @@ int	print(long time, t_philo *philo, char *msg)
 	if (philo->main->d_chc)
 	{
 		pthread_mutex_unlock(&philo->main->p_mutex);
-		usleep(100000);
+		usleep(1000);
 		exit_mutex(philo);
 		return (0);
 	}
 	if (msg[0] == '-')
 	{
 		philo->main->d_chc = 1;
+		printf("%s", msg);
 		pthread_mutex_unlock(&philo->main->p_mutex);
 		return(0);
 	}
@@ -61,3 +62,4 @@ int	print(long time, t_philo *philo, char *msg)
 	pthread_mutex_unlock(&philo->main->p_mutex);
 	return (1);
 }
+

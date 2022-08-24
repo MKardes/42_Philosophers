@@ -6,7 +6,7 @@
 /*   By: mkardes <mkardes@student.42kocaeli.com.tr  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/17 11:55:20 by mkardes           #+#    #+#             */
-/*   Updated: 2022/08/23 17:56:14 by mkardes          ###   ########.fr       */
+/*   Updated: 2022/08/24 20:50:52 by mkardes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,38 +20,16 @@ int	lock_fork(t_philo *philo)
 	if (!philo->state[0])
 	{
 		pthread_mutex_lock(&philo->main->forks[philo->id]);
-		if (philo->main->d_chc)
-			return (0);
-		if (get_time(philo->time) - time + philo->main->slp > philo->main->die)
-			return (!print(get_time(philo->time), philo, DIE));
+		pthread_mutex_lock(&philo->main->forks[(philo->id + 1) % philo->main->cnt]);
 		if (!print(get_time(philo->time), philo, FORK))
-			return (0);
+            return (0);
+		if (!print(get_time(philo->time), philo, FORK))
+            return (0);
+		if (get_time(philo->time) - time > philo->main->die - philo->main->slp - philo->main->eat)
+			return (print(get_time(philo->time), philo, DIE));
 		philo->state[0] = 1;
-		if (philo->main->d_chc)
-        return (0);
-	}
-	if (!philo->state[1])
-	{
-		if (philo->id != philo->main->cnt - 1)
-		{
-			pthread_mutex_lock(&philo->main->forks[philo->id + 1]);
-			if (get_time(philo->time) - time + philo->main->slp > philo->main->die)
-				return (!print(get_time(philo->time), philo, DIE));
-		}
-		else
-		{
-			pthread_mutex_lock(&philo->main->forks[0]);
-			if (get_time(philo->time) - time + philo->main->slp > philo->main->die)
-				return (!print(get_time(philo->time), philo, DIE));
-		}
-		if (!print(get_time(philo->time), philo, FORK))
-			return (0);
-		philo->state[1] = 1;
-		if (philo->main->d_chc)
-        return (0);
-	}
-	if (philo->state[0] && philo->state[1])
 		return (get_eat(philo));
+	}
 	return (1);
 }
 
@@ -65,20 +43,6 @@ long	get_time(long time)
 	if (time == 0)
 		return (now);
 	return (now - time);
-}
-
-void	fork_init(t_philo *philo)
-{
-	pthread_mutex_lock(&philo->main->forks[philo->id]);
-	print(get_time(philo->time), philo, FORK);
-	philo->state[0] = 1;
-	if (philo->id != philo->main->cnt - 1)
-		pthread_mutex_lock(&philo->main->forks[philo->id + 1]);
-	else
-		pthread_mutex_lock(&philo->main->forks[0]);
-	philo->state[1] = 1;
-	print(get_time(philo->time), philo, FORK);
-	get_eat(philo);
 }
 
 void	thread_maker(char **av, t_main *main)
@@ -100,13 +64,14 @@ void	thread_maker(char **av, t_main *main)
 	while (++i < main->cnt)
 	{
 		main->philo[i].time = main->start_t;
-		main->philo[i].state = malloc(5);
+		main->philo[i].state = malloc(4);
 		main->philo[i].color = main->color[i % 8];
 		main->philo[i].id = i;
 		pthread_create(&(main->philo[i].td), NULL, loop, &main->philo[i]);
 		pthread_mutex_init(&main->forks[i], NULL);
 		main->philo[i].main = main;
 		main->philo[i].e_cnt = 0;
+		main->philo[i].die_t = main->start_t + main->die;
 	}
 	i = -1;
 	while (++i < main->cnt)

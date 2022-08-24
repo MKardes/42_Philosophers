@@ -6,7 +6,7 @@
 /*   By: mkardes <mkardes@student.42kocaeli.com.tr  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/23 13:20:44 by mkardes           #+#    #+#             */
-/*   Updated: 2022/08/23 17:56:06 by mkardes          ###   ########.fr       */
+/*   Updated: 2022/08/24 20:50:50 by mkardes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,21 +16,18 @@ void	*exit_mutex(t_philo *philo)
 {
 	int	i;
 
-	i = 0;
-	while (i < philo->main->cnt)
-	{
+	i = -1;
+	while (++i < philo->main->cnt)
 		pthread_mutex_unlock(&philo->main->forks[i]);
-		i++;
-	}
 	return (0);
 }
 
 int	get_think(t_philo *philo)
 {
-	philo->state[3] = 0;
+	philo->state[2] = 0;
 	if (!print(get_time(philo->time), philo, THNK))
 		return (0);
-	philo->state[4] = 1;
+	philo->state[3] = 1;
 	return (1);
 }
 
@@ -38,23 +35,24 @@ int	get_sleep(t_philo *philo)
 {
 	philo->state[0] = 0;
 	philo->state[1] = 0;
-	philo->state[2] = 0;
 	if (!print(get_time(philo->time), philo, SLP))
 		return (0);
-	if (philo->main->slp > philo->main->die)
-		return (!print(get_time(philo->time - philo->main->die + 1), philo, DIE));
+	if (get_time(philo->time) + philo->main->slp > philo->die_t)
+	{
+		usleep((philo->main->die - philo->main->eat) * 1000);
+		return (print(get_time(philo->time), philo, DIE));
+	}
 	usleep(philo->main->slp * 1000);
-	philo->state[3] = 1;
+	philo->state[2] = 1;
 	return (1);
 }
 
 int	get_eat(t_philo *philo)
 {
-	if (philo->main->d_chc)
-        return (0);
-	philo->state[2] = 1;
+	philo->state[1] = 1;
 	if (!print(get_time(philo->time), philo, EAT))
 		return (0);
+	philo->die_t = get_time(philo->time) + philo->main->die;
 	philo->e_cnt++;
 	if (philo->e_cnt == philo->main->trgt)
 	{
@@ -62,16 +60,18 @@ int	get_eat(t_philo *philo)
 		philo->main->reach++;
 		pthread_mutex_unlock(&philo->main->reach_m);
 	}
-	if (philo->main->reach == philo->main->cnt)
-		return (!print(0, philo, philo->main->msgs[5]));
-	usleep(philo->main->eat * 1000);
-	pthread_mutex_unlock(&philo->main->forks[philo->id]);
-	philo->state[0] = 0;
-	if (philo->id != philo->main->cnt - 1)
-		pthread_mutex_unlock(&philo->main->forks[philo->id + 1]);
+	if (philo->main->a_5 && philo->main->reach == philo->main->cnt)
+		return (print(0, philo, philo->main->msgs[5]));
+	if (philo->main->eat > philo->main->die)
+	{
+		usleep(philo->main->die * 1000);
+		return (print(get_time(philo->time), philo, DIE));
+	}
 	else
-		pthread_mutex_unlock(&philo->main->forks[0]);
-	philo->state[1] = 0;
+		usleep(philo->main->eat * 1000);
+	pthread_mutex_unlock(&philo->main->forks[philo->id]);
+	pthread_mutex_unlock(&philo->main->forks[(philo->id + 1) % philo->main->cnt]);
+	philo->state[0] = 0;
 	return (1);
 }
 
@@ -86,20 +86,16 @@ void	*loop(void *philos)
 		print(get_time(philo->time), philo, DIE);
 		return (0);
 	}
-	if (philo->id % 2)
-		fork_init(philo);
-	else
+	if (philo->id % 2 == 0)
 		usleep(philo->main->eat * 1000);
 	while (1)
 	{
-		if (philo->state[4] || (!philo->state[0] && !philo->state[1]
-				&& !philo->state[2] && !philo->state[3] && !philo->state[4]))
-			if (!lock_fork(philo))
-				return (exit_mutex(philo));
-		if (philo->state[2])
+		if (!lock_fork(philo))
+			return (exit_mutex(philo));
+		if (philo->state[1])
 			if (!get_sleep(philo))
 				return (exit_mutex(philo));
-		if (philo->state[3])
+		if (philo->state[2])
 			if (!get_think(philo))
 				return (exit_mutex(philo));
 	}

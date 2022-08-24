@@ -32,6 +32,7 @@ typedef struct s_philo{
 	char			*color;
 	char			*state;
 	long			time;
+	long			die_t;
 	int				id;
 	int				e_cnt;
 }	t_philo;

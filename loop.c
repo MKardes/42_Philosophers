@@ -6,7 +6,7 @@
 /*   By: mkardes <mkardes@student.42kocaeli.com.tr  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/23 13:20:44 by mkardes           #+#    #+#             */
-/*   Updated: 2022/08/24 20:50:50 by mkardes          ###   ########.fr       */
+/*   Updated: 2022/08/25 15:33:39 by mkardes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,10 @@
 
 void	*exit_mutex(t_philo *philo)
 {
-	int	i;
-
-	i = -1;
-	while (++i < philo->main->cnt)
-		pthread_mutex_unlock(&philo->main->forks[i]);
+	usleep(1000);
+	pthread_mutex_unlock(&philo->main->forks[philo->id]);
+	pthread_mutex_unlock(&philo->main->forks
+	[(philo->id + 1) % philo->main->cnt]);
 	return (0);
 }
 
@@ -38,11 +37,8 @@ int	get_sleep(t_philo *philo)
 	if (!print(get_time(philo->time), philo, SLP))
 		return (0);
 	if (get_time(philo->time) + philo->main->slp > philo->die_t)
-	{
-		usleep((philo->main->die - philo->main->eat) * 1000);
-		return (print(get_time(philo->time), philo, DIE));
-	}
-	usleep(philo->main->slp * 1000);
+		return (print(philo->die_t, philo, DIE));
+	my_sleep(philo->main->slp);
 	philo->state[2] = 1;
 	return (1);
 }
@@ -61,16 +57,14 @@ int	get_eat(t_philo *philo)
 		pthread_mutex_unlock(&philo->main->reach_m);
 	}
 	if (philo->main->a_5 && philo->main->reach == philo->main->cnt)
-		return (print(0, philo, philo->main->msgs[5]));
+		return (print(0, philo, '-'));
 	if (philo->main->eat > philo->main->die)
-	{
-		usleep(philo->main->die * 1000);
-		return (print(get_time(philo->time), philo, DIE));
-	}
+		return (print(philo->die_t, philo, DIE));
 	else
-		usleep(philo->main->eat * 1000);
+		my_sleep(philo->main->eat);
 	pthread_mutex_unlock(&philo->main->forks[philo->id]);
-	pthread_mutex_unlock(&philo->main->forks[(philo->id + 1) % philo->main->cnt]);
+	pthread_mutex_unlock(&philo->main->forks
+	[(philo->id + 1) % philo->main->cnt]);
 	philo->state[0] = 0;
 	return (1);
 }
@@ -86,8 +80,8 @@ void	*loop(void *philos)
 		print(get_time(philo->time), philo, DIE);
 		return (0);
 	}
-	if (philo->id % 2 == 0)
-		usleep(philo->main->eat * 1000);
+	if (philo->id % 2)
+		usleep(15000);
 	while (1)
 	{
 		if (!lock_fork(philo))

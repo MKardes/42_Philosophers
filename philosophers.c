@@ -6,11 +6,20 @@
 /*   By: mkardes <mkardes@student.42kocaeli.com.tr  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/17 11:55:20 by mkardes           #+#    #+#             */
-/*   Updated: 2022/08/24 20:50:52 by mkardes          ###   ########.fr       */
+/*   Updated: 2022/08/25 15:51:10 by mkardes          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
+
+void	my_sleep(long long time)
+{
+	long long	now;
+
+	now = get_time(0);
+	while (get_time(0) - now < time)
+		usleep(100);
+}
 
 int	lock_fork(t_philo *philo)
 {
@@ -20,13 +29,14 @@ int	lock_fork(t_philo *philo)
 	if (!philo->state[0])
 	{
 		pthread_mutex_lock(&philo->main->forks[philo->id]);
-		pthread_mutex_lock(&philo->main->forks[(philo->id + 1) % philo->main->cnt]);
+		pthread_mutex_lock(&philo->main->forks
+		[(philo->id + 1) % philo->main->cnt]);
+		if (get_time(philo->time) > philo->die_t)
+			return (print(philo->die_t, philo, DIE));
 		if (!print(get_time(philo->time), philo, FORK))
-            return (0);
+			return (0);
 		if (!print(get_time(philo->time), philo, FORK))
-            return (0);
-		if (get_time(philo->time) - time > philo->main->die - philo->main->slp - philo->main->eat)
-			return (print(get_time(philo->time), philo, DIE));
+			return (0);
 		philo->state[0] = 1;
 		return (get_eat(philo));
 	}
@@ -57,34 +67,33 @@ void	thread_maker(char **av, t_main *main)
 	main->eat = ft_atoi(av[3]);
 	main->slp = ft_atoi(av[4]);
 	main->d_chc = 0;
-	main->forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * main->cnt);
+	main->forks = (pthread_mutex_t *)malloc(sizeof
+			(pthread_mutex_t) * main->cnt);
 	main->philo = (t_philo *)malloc(sizeof(t_philo) * main->cnt);
-	pthread_mutex_init(&main->p_mutex, NULL);
-	pthread_mutex_init(&main->reach_m, NULL);
 	while (++i < main->cnt)
 	{
 		main->philo[i].time = main->start_t;
 		main->philo[i].state = malloc(4);
 		main->philo[i].color = main->color[i % 8];
 		main->philo[i].id = i;
-		pthread_create(&(main->philo[i].td), NULL, loop, &main->philo[i]);
 		pthread_mutex_init(&main->forks[i], NULL);
+		pthread_create(&(main->philo[i].td), NULL, loop, &main->philo[i]);
 		main->philo[i].main = main;
 		main->philo[i].e_cnt = 0;
-		main->philo[i].die_t = main->start_t + main->die;
+		main->philo[i].die_t = main->die;
 	}
-	i = -1;
-	while (++i < main->cnt)
-		pthread_join(main->philo[i].td, NULL);
 }
 
 int	main(int ac, char **av)
 {
-	t_main		main;
+	t_main	main;
+	int		i;
 
+	i = -1;
 	if (ac == 5 || ac == 6)
 	{
-		printf("Die time : %s\nEat time: %s\nSleep time: %s\n\n", av[2], av[3], av[4]);
+		pthread_mutex_init(&main.p_mutex, NULL);
+		pthread_mutex_init(&main.reach_m, NULL);
 		main.a_5 = 0;
 		if (ac == 6)
 		{
@@ -93,6 +102,13 @@ int	main(int ac, char **av)
 			main.a_5 = 1;
 		}
 		thread_maker(av, &main);
+		while (1)
+		{
+			if (main.d_chc)
+				break ;
+		}
+		while (++i < main.cnt)
+			pthread_join(main.philo[i].td, NULL);
 	}
 	return (0);
 }

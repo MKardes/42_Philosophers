@@ -1,26 +1,26 @@
 NAME = philo
-LIBFT = libft/libft.a
-LIB_F = libft
+R_NAME = philo_race
+
 CC = gcc
-CFLAGS = -Wall -Werror -Wextra
+CFLAGS = -Wall -Wextra -Werror
+
 TFLAG = -lpthread
-SRCS = philosophers.c utils.c loop.c
+SRCS = main.c utils.c init.c philo.c
 
-all: $(NAME)
+all : $(NAME)
 
-$(NAME): $(LIBFT) $(SRCS)
-	$(CC) $(CFLAGS) $(TFLAG) $(LIBFT) $(SRCS) -o $(NAME)
+$(NAME) : $(SRCS)
+	$(CC) $(CFLAGS) $(TFLAG) $(SRCS) -o $(NAME)
 
-$(LIBFT): $(LIB_F)
-	make -C $(LIB_F)
+race:
+	$(CC) $(CFLAGS) -fsanitize=thread $(TFLAG) $(SRCS) -o $(R_NAME)
 
-clean:
-	make clean -C $(LIB_F)
+clean :
+	rm -rf $(NAME) $(R_NAME)
 
-fclean: clean
-	make fclean -C $(LIB_F)
-	rm -rf $(NAME)
+fclean :
+	rm -rf $(NAME) $(R_NAME)
 
-re: fclean all
+re : fclean all
 
 .PHONY: clean fclean re all
